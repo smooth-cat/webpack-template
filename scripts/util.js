@@ -50,6 +50,8 @@ function changeFileSync(path, handle, shouldAdd=true) {
   writeFileSync(path, data, CONF);
 }
 
+const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+
 module.exports = {
   readJsonSync,
   writeJsonSync,
@@ -59,4 +61,5 @@ module.exports = {
   file,
   asyncExec,
   exec: exec1,
+  capitalize,
 };

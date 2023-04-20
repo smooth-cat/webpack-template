@@ -1,4 +1,4 @@
-const { changeJsonSync, cwd, changeFileSync, exec } = require('./util');
+const { changeJsonSync, cwd, changeFileSync, exec, capitalize } = require('./util');
 const readlineSync = require('readline-sync');
 
 let params = process.argv.slice(2);
@@ -6,9 +6,9 @@ let params = process.argv.slice(2);
 if (!params.length) {
   const res = readlineSync
     .question(
-      '请输入 <name|包名> ## <author|作者> ## <description|描述>\n\n例如： my-prj ## smooth-cat ## a awsome project\n\n'
+      '请输入 <name|包名> # <author|作者> # <description|描述>\n\n例如： my-prj # smooth-cat # a awsome project\n\n'
     )
-    .split('##')
+    .split('#')
     .map(it => it.trim());
   if (!res[0]) {
     console.log('未找到包名🤡~');
@@ -21,7 +21,8 @@ const [name, author, description] = params;
 
 changeJsonSync(cwd('./package.json'), data => {
   const version = '0.0.1';
-  const keyWords = [name, ...name.split('-')];
+  const keyWords = name.split('-');
+  keyWords.length > 1 && keyWords.unshift(name);
 
   const repoReg = /git\@(.*):([^\n]+).git/;
   let repo = '';
@@ -61,6 +62,9 @@ changeJsonSync(cwd('./package.json'), data => {
     ...repoProps,
     keyWords,
     name,
+    bin: {
+      [name]: 'bin/cli.js',
+    },
     author,
     description
   };
@@ -71,7 +75,7 @@ changeFileSync(cwd('./README.md'), data => {
 });
 
 changeFileSync(cwd('./webpack.config.js'), data => {
-  return data.replace('___umd___', name.split('-').map(it => it.toUpperCase()).join(''));
+  return data.replace('___umd___', name.split('-').map(it => capitalize(it)).join(''));
 })
 
 console.log('初始化项目成功🤡~');
